@@ -9,7 +9,7 @@
     });
   }
   function ul(a) { return "<ul>" + a.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>"; }
-  function put(id, html) { $("#" + id).innerHTML = html; }
+  function put(id, html) { var e = $("#" + id); if (e) { e.innerHTML = html; } }
   function head(h, sub) { return "<h2>" + esc(h) + "</h2>" + (sub ? '<p class="sub">' + esc(sub) + "</p>" : ""); }
 
   /* ---------- illustrative visuals (generated SVG, no real client data) ---------- */
@@ -83,54 +83,102 @@
     qa: '<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>'
   };
 
-  var p = C.profile;
-  $("#logo").innerHTML = esc(p.short) + "<span>.</span>";
-  $("#menu").innerHTML = C.nav.map(function (n) { return '<a href="#' + n.id + '">' + esc(n.label) + "</a>"; }).join("");
+  V.hub = function () {
+    var o = '<circle class="v-ln spin" cx="160" cy="90" r="64" stroke-dasharray="3 7"/><circle class="v-ln" cx="160" cy="90" r="36"/>' +
+      '<path class="v-ln" d="M160 68V36M160 112V144M182 90H236M138 90H84"/><circle class="v-a" cx="160" cy="90" r="22"/>' +
+      '<text class="v-tb" x="160" y="94" text-anchor="middle" style="fill:#fff">data</text>';
+    [[130, 20, 60, "video"], [236, 82, 64, "audio"], [130, 144, 60, "text"], [20, 82, 64, "images"]].forEach(function (n, k) {
+      o += '<g class="pulse" style="animation-delay:' + k * 0.8 + 's">' + chip(n[0], n[1], n[2], n[3]) + "</g>";
+    });
+    return W(o, "Data work across video, audio, text and images");
+  };
+  function rotate(el, list) {
+    if (!el) { return; }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { el.textContent = list[0]; return; }
+    var i = 0, j = 0, del = false;
+    (function tick() {
+      var w = list[i], d = del ? 35 : 70;
+      j += del ? -1 : 1;
+      el.textContent = w.slice(0, j);
+      if (!del && j === w.length) { del = true; d = 1700; }
+      else if (del && j === 0) { del = false; i = (i + 1) % list.length; d = 350; }
+      setTimeout(tick, d);
+    })();
+  }
 
-  put("hero", '<div class="wrap hero-in"><div><span class="status"><i></i>' + esc(p.status) + "</span>" +
-    '<p class="who" style="margin-top:20px">' + esc(p.name) + " · " + esc(p.title) + "</p><h1>" + esc(p.headline) + "</h1>" +
-    '<p class="role" style="margin-top:14px">' + esc(p.tagline) + "</p>" +
-    '<div class="cta" style="margin-bottom:0">' + C.ctas.map(function (c) {
-      return '<a class="btn' + (c.primary ? " pri" : "") + '" href="' + esc(c.href) + '">' + esc(c.label) + "</a>";
-    }).join("") + '</div></div><div><div class="hero-viz"><div class="viz">' + V[C.hero.visual](true) + '</div></div><span class="cap mono">' + esc(C.hero.caption) + "</span></div></div>");
+  var page = document.body.getAttribute("data-page"), base = page === "work" ? "index.html" : "";
+  var p = C.profile, cats = C.work.categories;
+  $("#logo").innerHTML = esc(p.short) + "<span>.</span>";
+  $("#logo").setAttribute("href", base + "#hero");
+  $("#menu").innerHTML = C.nav.map(function (n) { return '<a href="' + base + "#" + n.id + '">' + esc(n.label) + "</a>"; }).join("");
+
+  if (page === "home") {
+    put("hero", '<div class="wrap hero-in"><div><span class="status"><i></i>' + esc(p.status) + "</span>" +
+      '<h1 class="name">' + esc(p.name) + '</h1><p class="rolebar" aria-hidden="true">I\'m a <span id="rot"></span><b class="caret"></b></p>' +
+      '<p class="sr">I am a ' + esc(p.roles.join(", ")) + ".</p>" +
+      '<p class="role">' + esc(p.tagline) + '</p><div class="cta" style="margin-bottom:0">' + C.ctas.map(function (c) {
+        return '<a class="btn' + (c.primary ? " pri" : "") + '" href="' + esc(c.href) + '">' + esc(c.label) + "</a>";
+      }).join("") + '</div></div><div><div class="hero-viz"><div class="viz">' + V.hub() + '</div></div><span class="cap mono">' + esc(C.hero.caption) + "</span></div></div>");
+    rotate($("#rot"), p.roles);
+    put("work", '<div class="wrap">' + head(C.work.heading, C.work.intro) + '<div class="fields">' + cats.map(function (f, n) {
+      var ok = f.items.length > 0, inner = '<span class="fn mono">0' + (n + 1) + '</span><span class="badge">' + (ok ? f.items.length + (f.items.length > 1 ? " projects" : " project") : "Coming soon") + "</span><h3>" + esc(f.label) + "</h3>" +
+        (ok ? "<p>" + esc(f.tagline) + '</p><ul class="fl">' + f.items.map(function (i) { return "<li>" + esc(i.title) + "</li>"; }).join("") + '</ul><span class="go">Explore projects <i>→</i></span>'
+            : '<div class="sk"><b></b><b></b><b></b></div><span class="go off">Projects coming soon</span>');
+      return ok ? '<a class="field reveal" href="work.html#' + f.id + '">' + inner + "</a>" : '<div class="field soon reveal" aria-disabled="true">' + inner + "</div>";
+    }).join("") + "</div></div>");
+    [].forEach.call(document.querySelectorAll("a.field"), function (c) {
+      c.addEventListener("pointermove", function (e) {
+        var r = c.getBoundingClientRect();
+        c.style.setProperty("--mx", e.clientX - r.left + "px"); c.style.setProperty("--my", e.clientY - r.top + "px");
+      });
+    });
+  }
+
+  if (page === "work") {
+    var wp = $("#workpage");
+    var state = function () {
+      var h = location.hash.replace("#", "").split("/"), f = cats[0], i = 0;
+      cats.forEach(function (c) { if (c.id === h[0]) { f = c; } });
+      f.items.forEach(function (it, k) { if (it.id === h[1]) { i = k; } });
+      return { f: f, i: i };
+    };
+    var show = function () {
+      var s = state(), f = s.f, n = f.items.length, it = f.items[s.i], list, body;
+      document.title = f.label + " | " + p.name;
+      var tabsH = cats.map(function (c) {
+        return '<a class="tab" role="tab" href="#' + c.id + '" aria-selected="' + (c === f) + '">' + esc(c.label) + (c.items.length ? "" : " · soon") + "</a>";
+      }).join("");
+      if (n) {
+        var pv = f.items[(s.i + n - 1) % n], nx = f.items[(s.i + 1) % n];
+        list = f.items.map(function (x, k) {
+          return '<a class="pi' + (k === s.i ? " on" : "") + '" href="#' + f.id + "/" + x.id + '"' + (k === s.i ? ' aria-current="true"' : "") + '><i class="mono">' + (k < 9 ? "0" : "") + (k + 1) + "</i><span><b>" + esc(x.title) + "</b><small>" + esc(x.org) + " · " + esc(x.period) + "</small></span></a>";
+        }).join("");
+        body = '<article class="pd"><div class="viz">' + V[it.visual](false) + '<span class="ill">Illustrative visual</span></div><div class="pbody"><span class="eyebrow mono">' + esc(it.type) + " · " + esc(it.period) + "</span><h2>" + esc(it.title) + '</h2><p class="meta">' + esc(it.org) + '</p><p style="margin-top:12px">' + esc(it.summary) + '</p><h3 class="sh">What I did</h3>' + ul(it.highlights) +
+          (it.metrics ? '<div class="mets">' + it.metrics.map(function (m) { return "<div><b>" + esc(m.v) + "</b><span>" + esc(m.l) + "</span></div>"; }).join("") + "</div>" : "") +
+          '<div class="tags">' + it.tags.map(function (t) { return '<span class="tag">' + esc(t) + "</span>"; }).join("") + "</div>" +
+          (n > 1 ? '<div class="pnav"><a href="#' + f.id + "/" + pv.id + '">← ' + esc(pv.title) + '</a><a href="#' + f.id + "/" + nx.id + '">' + esc(nx.title) + " →</a></div>" : "") + "</div></article>";
+      } else {
+        list = [1, 2, 3].map(function () { return '<span class="pi ghost"><span class="sk"><b></b><b></b></span></span>'; }).join("");
+        body = '<article class="pd soonpane"><h2>Projects coming soon</h2><p>Projects for this field are on the way.</p><div class="sk" style="max-width:360px;margin:24px auto 0"><b></b><b></b><b></b></div></article>';
+      }
+      wp.innerHTML = '<div class="wrap workpage"><a class="back" href="index.html#work">← Back to portfolio</a><div class="tabs" role="tablist" aria-label="Fields">' + tabsH + '</div><header class="fhead"><h1 class="ftitle">' + esc(f.label) + "</h1>" +
+        (f.tagline ? '<p class="role">' + esc(f.tagline) + "</p>" : "") + '</header><div class="wk"><div class="plist" role="navigation" aria-label="Projects">' + list + "</div>" + body + '</div><p class="meta" style="margin-top:28px">' + esc(C.work.note) + "</p></div>";
+      var on = wp.querySelector(".pi.on");
+      if (on && on.scrollIntoView) { on.scrollIntoView({ block: "nearest", inline: "center" }); }
+    };
+    document.addEventListener("keydown", function (e) {
+      var s = state(), n = s.f.items.length;
+      if (n < 2 || (e.key !== "ArrowLeft" && e.key !== "ArrowRight")) { return; }
+      location.hash = s.f.id + "/" + s.f.items[(s.i + (e.key === "ArrowRight" ? 1 : n - 1)) % n].id;
+    });
+    window.addEventListener("hashchange", show);
+    show();
+  }
 
   put("impact", '<div class="wrap">' + head(C.impact.heading) + '<div class="grid">' + C.impact.items.map(function (i) {
     var ring = i.pct ? '<svg class="ring" viewBox="0 0 96 96" aria-hidden="true"><circle class="t" cx="48" cy="48" r="42"/><circle class="f" cx="48" cy="48" r="42" transform="rotate(-90 48 48)" style="--d:' + (i.pct * 2.64) + '"/></svg>' : "";
     return '<div class="card imp reveal">' + ring + "<div><b>" + esc(i.value) + "</b><span>" + esc(i.label) + "</span></div></div>";
   }).join("") + "</div></div>");
-
-  var cats = C.projects.categories;
-  function card(i, n) {
-    return '<article class="card proj reveal' + (n === 0 ? " feature" : "") + '"><div class="viz">' + V[i.visual](false) + '<span class="ill">Illustrative visual</span></div><div class="body">' +
-      '<span class="eyebrow mono">' + esc(i.type) + " · " + esc(i.period) + "</span><h3>" + esc(i.title) + '</h3><p class="meta">' + esc(i.org) + "</p>" +
-      '<p style="margin-top:10px">' + esc(i.summary) + "</p>" + ul(i.highlights) +
-      (i.metrics ? '<div class="mets">' + i.metrics.map(function (m) { return "<div><b>" + esc(m.v) + "</b><span>" + esc(m.l) + "</span></div>"; }).join("") + "</div>" : "") +
-      '<div class="tags">' + i.tags.map(function (t) { return '<span class="tag">' + esc(t) + "</span>"; }).join("") + "</div></div></article>";
-  }
-  function panel(c) {
-    return c.items.length ? '<div class="grid pgrid">' + c.items.map(card).join("") + "</div>" : '<div class="empty">' + esc(c.blurb || "Coming soon.") + "</div>";
-  }
-  put("projects", '<div class="wrap">' + head(C.projects.heading, C.projects.intro) +
-    '<div class="tabs" role="tablist" aria-label="Project fields">' + cats.map(function (c, i) {
-      return '<button class="tab" role="tab" id="tab-' + c.id + '" aria-controls="panel" aria-selected="' + (i === 0) + '" tabindex="' + (i === 0 ? 0 : -1) + '">' + esc(c.label) + "</button>";
-    }).join("") + '</div><div id="panel" class="panel" role="tabpanel" aria-labelledby="tab-' + cats[0].id + '">' + panel(cats[0]) + "</div></div>");
-  var tabs = [].slice.call(document.querySelectorAll(".tab"));
-  function pick(i) {
-    tabs.forEach(function (t, k) { t.setAttribute("aria-selected", k === i); t.tabIndex = k === i ? 0 : -1; });
-    var pn = $("#panel");
-    pn.setAttribute("aria-labelledby", "tab-" + cats[i].id);
-    pn.className = "panel"; void pn.offsetWidth;
-    pn.innerHTML = panel(cats[i]);
-    [].forEach.call(pn.querySelectorAll(".reveal"), function (e) { e.classList.add("in"); });
-    tabs[i].focus();
-  }
-  tabs.forEach(function (t, i) {
-    t.addEventListener("click", function () { pick(i); });
-    t.addEventListener("keydown", function (e) {
-      if (e.key === "ArrowRight") { e.preventDefault(); pick((i + 1) % tabs.length); }
-      if (e.key === "ArrowLeft") { e.preventDefault(); pick((i - 1 + tabs.length) % tabs.length); }
-    });
-  });
 
   put("focus", '<div class="wrap">' + head(C.focus.heading) + '<div class="grid">' + C.focus.items.map(function (i) {
     return '<div class="card focus reveal"><div class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + IC[i.icon] + "</svg></div><h3>" + esc(i.title) + "</h3><p>" + esc(i.text) + "</p></div>";
