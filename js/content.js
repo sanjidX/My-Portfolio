@@ -1,27 +1,27 @@
-/* ALL site content lives here. Add a project: add an object to a category's "items" (pick a visual type: video, transcript, noise, voice, moderation, dataset). */
+/* ALL site content lives here. To add a project: add it to a field's "items" (pick a visual: video, transcript, noise, voice, moderation, dataset). A field card becomes a link automatically once it has items. */
 window.PORTFOLIO = {
   profile: {
     name: "Md. Sanjid Jaman Himel",
     short: "Sanjid",
     title: "Data Annotation Analyst | Annotation QA | Computer Vision Training Data",
     status: "Open to remote data annotation roles",
-    headline: "I turn raw video, audio and text into training data that AI can learn from.",
-    tagline: "Quality-focused annotator and QA professional with Bengali-language expertise, a sharp eye for edge cases, and strict guideline accuracy.",
+    roles: ["Data Annotation Analyst", "AI Trainer", "Quality Assurance Specialist", "Bengali–English Annotator"],
+    tagline: "Accurate, consistent data work across video, audio, text and images, delivered to guideline and on deadline.",
     location: "Dhaka, Bangladesh"
   },
   nav: [
-    { id: "projects", label: "Work" },
+    { id: "work", label: "Work" },
     { id: "focus", label: "Focus" },
     { id: "process", label: "Process" },
     { id: "path", label: "Path" },
     { id: "contact", label: "Contact" }
   ],
   ctas: [
-    { label: "See my work", href: "#projects", primary: true },
+    { label: "See my work", href: "#work", primary: true },
     { label: "Contact me", href: "#contact" },
     { label: "Download CV", href: "assets/Sanjid_Jaman_Himel_CV.pdf" }
   ],
-  hero: { visual: "video", caption: "Illustrative: how dashcam event tagging works (not real footage)" },
+  hero: { caption: "Illustrative: data work across video, audio, text and images" },
   impact: {
     heading: "Results in numbers",
     items: [
@@ -31,14 +31,15 @@ window.PORTFOLIO = {
       { value: "3,700+", label: "content items reviewed for toxicity and risk" }
     ]
   },
-  projects: {
-    heading: "Selected work",
-    intro: "Each project shows the task, what I did and the result. Visuals are illustrations; client data is never shown.",
+  work: {
+    heading: "Explore my work",
+    intro: "Choose a field and hover to preview its projects.",
+    note: "Visuals are illustrations; client data is never shown.",
     categories: [
       {
-        id: "annotation", label: "Data Annotation",
+        id: "annotation", label: "Data Annotation", tagline: "Video, audio and text data, annotated and quality-checked against the guidelines.",
         items: [
-          { visual: "video", title: "Dashcam Video Event Tagging", org: "Rooya Bangladesh", period: "Sep 2026 – Present", type: "Video annotation",
+          { visual: "video", id: "dashcam", title: "Dashcam Video Event Tagging", org: "Rooya Bangladesh", period: "Sep 2026 – Present", type: "Video annotation",
             summary: "Annotating dashcam footage of moving vehicles as part of an AI Operations team.",
             highlights: [
               "Tagged safety-critical events: harsh braking, acceleration and cornering.",
@@ -47,7 +48,7 @@ window.PORTFOLIO = {
             ],
             metrics: [{ v: "Ongoing", l: "since Sep 2026" }],
             tags: ["Video annotation", "Driver behavior analysis", "Event tagging"] },
-          { visual: "transcript", title: "Bengali Speech & Audio Transcription", org: "Sigma AI", period: "Feb 2026 – Present", type: "Audio annotation",
+          { visual: "transcript", id: "transcription", title: "Bengali Speech & Audio Transcription", org: "Sigma AI", period: "Feb 2026 – Present", type: "Audio annotation",
             summary: "Contract transcription of Bengali audio for AI training data.",
             highlights: [
               "Handled overlapping speech, background noise and nonverbal cues.",
@@ -56,7 +57,7 @@ window.PORTFOLIO = {
             ],
             metrics: [{ v: "4,000+", l: "segments" }, { v: "99%+", l: "accuracy" }, { v: "98–100%", l: "formatting compliance" }],
             tags: ["Transcription", "Bengali", "Edge cases"] },
-          { visual: "moderation", title: "Toxicity & Hate Speech Evaluation", org: "Innodata", period: "Dec 2025 – Jan 2026", type: "Content moderation",
+          { visual: "moderation", id: "toxicity", title: "Toxicity & Hate Speech Evaluation", org: "Innodata", period: "Dec 2025 – Jan 2026", type: "Content moderation",
             summary: "Reviewed high-volume Bengali text for risk and sensitive content.",
             highlights: [
               "Classified items across hate speech, PII and medical misinformation using SoT guidelines.",
@@ -65,7 +66,7 @@ window.PORTFOLIO = {
             ],
             metrics: [{ v: "3,700+", l: "items reviewed" }],
             tags: ["Toxicity review", "PII identification", "Self-QA"] },
-          { visual: "voice", title: "Bengali Voiceover Evaluation", org: "Innodata", period: "Jan 2026", type: "Audio quality evaluation",
+          { visual: "voice", id: "voiceover", title: "Bengali Voiceover Evaluation", org: "Innodata", period: "Jan 2026", type: "Audio quality evaluation",
             summary: "Evaluated Bengali voiceovers against reference materials on the Data Compute platform.",
             highlights: [
               "Assessed pronunciation, clarity, tone and overall audio quality.",
@@ -73,11 +74,11 @@ window.PORTFOLIO = {
             ],
             metrics: [{ v: "100+", l: "recordings" }, { v: "100%", l: "guideline adherence" }],
             tags: ["Audio QA", "SoT guidelines", "Data Compute"] },
-          { visual: "noise", title: "Speech & Noise Tagging", org: "Babel Audio", period: "Jul 2026", type: "Audio annotation",
+          { visual: "noise", id: "noise-tagging", title: "Speech & Noise Tagging", org: "Babel Audio", period: "Jul 2026", type: "Audio annotation",
             summary: "Part-time audio annotation for AI training data.",
             highlights: ["Tagged speech and noise and transcribed audio using structured labeling conventions."],
             tags: ["Noise tagging", "Transcription"] },
-          { visual: "dataset", title: "Image Dataset Preparation", org: "DataKothon Research Lab", period: "May 2024 – Aug 2025", type: "Computer vision data",
+          { visual: "dataset", id: "image-datasets", title: "Image Dataset Preparation", org: "DataKothon Research Lab", period: "May 2024 – Aug 2025", type: "Computer vision data",
             summary: "Python tooling to prepare and protect image datasets.",
             highlights: [
               "Automated image-composition scripts with Pillow and OpenCV.",
@@ -87,8 +88,8 @@ window.PORTFOLIO = {
             tags: ["Python", "OpenCV", "Pillow", "Data privacy"] }
         ]
       },
-      { id: "data", label: "Data Analysis & ML", blurb: "Projects in this field are coming soon.", items: [] },
-      { id: "ai", label: "AI Engineering", blurb: "Projects in this field are coming soon.", items: [] }
+      { id: "analysis", label: "Data Analysis", tagline: "", items: [] },
+      { id: "ml", label: "ML & AI", tagline: "", items: [] }
     ]
   },
   focus: {
